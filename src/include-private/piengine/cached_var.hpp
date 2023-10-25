@@ -11,6 +11,10 @@ struct CachedVar {
 		return _set;
 	}
 
+	void clear() {
+		_set = false;
+	}
+
 	void set(const T& val) {
 		_var = val;
 	}

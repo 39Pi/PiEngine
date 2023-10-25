@@ -107,8 +107,9 @@ Mesh::Mesh() {
 		std::cerr << "PiEngine: constructed mesh object, vertex_size=" << vertex_size << std::endl;
 }
 
-void Mesh::draw(glm::mat4 mvp, Shader& shader) const {
-	glUniformMatrix4fv(shader.getMvpId(), 1, GL_FALSE, &mvp[0][0]);
+void Mesh::draw(glm::mat4 mvp, std::shared_ptr<Shader> shader) const {
+    shader->enable();
+	glUniformMatrix4fv(shader->getMvpId(), 1, GL_FALSE, &mvp[0][0]);
 
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);

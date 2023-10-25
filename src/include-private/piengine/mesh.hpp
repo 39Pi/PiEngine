@@ -10,7 +10,7 @@ struct Shader;
 struct Mesh {
 	Mesh();
 
-	void draw(glm::mat4 mvp, Shader& shader) const;
+	void draw(glm::mat4 mvp, std::shared_ptr<Shader> shader) const;
 
 private:
 	GLuint VertexArrayID;
