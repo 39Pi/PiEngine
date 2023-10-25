@@ -3,13 +3,18 @@
 #include <piengine/shader.hpp>
 #include <piengine/file_ops.hpp>
 
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+
 namespace {
 
 constexpr bool debugShaders = true;
 
 }
 
-Shader::Shader(std::filesystem::path vertexShaderFile, std::filesystem::path fragmentShaderFile) {
+Shader::Shader(std::filesystem::path vertexShaderFile, std::filesystem::path fragmentShaderFile)
+: _mvpID(std::bind(&Shader::_getMvpId, this)) {
 	_vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	_fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 
@@ -79,8 +84,8 @@ Shader::Shader(std::filesystem::path vertexShaderFile, std::filesystem::path fra
 	// Link the program
 	{
 		_programID = glCreateProgram();
-		glAttachShader(_programID, VertexShaderID);
-		glAttachShader(_programID, FragmentShaderID);
+		glAttachShader(_programID, _vertexShader);
+		glAttachShader(_programID, _fragmentShader);
 		glLinkProgram(_programID);
 
 		// Check the program
@@ -92,7 +97,7 @@ Shader::Shader(std::filesystem::path vertexShaderFile, std::filesystem::path fra
 			std::string infoLog(infoLogLen, ' ');
 			char* infoLogCStr = (char*)infoLog.c_str();
 			glGetProgramInfoLog(_programID, infoLogLen, NULL, infoLogCStr);
-			std::cerr << "PiEngine: linking of shaders {" << vertexShaderFile << ", " << fragmentShaderFile << "}" << std::endl
+			std::cerr << "PiEngine: linking of shaders {" << vertexShaderFile << ", " << fragmentShaderFile << "}" << std::endl;
 		}
 	}
 	if(debugShaders)

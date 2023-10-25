@@ -5,11 +5,17 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
+struct Shader;
+
 struct Mesh {
 	Mesh();
 
-	void draw() const;
+	void draw(glm::mat4 mvp, Shader& shader) const;
 
 private:
-	GLuint VertexArrayID, vertexbuffer, elementbuffer, vertex_size; 
+	GLuint VertexArrayID;
+	GLuint vertexbuffer;
+	GLuint elementbuffer;
+	GLuint colourbuffer;
+	GLuint vertex_size; 
 };

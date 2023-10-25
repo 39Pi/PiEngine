@@ -30,4 +30,8 @@ std::string loadFile(std::filesystem::path file) {
 	return sstr.str();
 }
 
+FILE* loadFile(std::filesystem::path file, const char mode[]) {
+	return fopen((relativePrepend / file).u8string().c_str(), mode);
+}
+
 }

@@ -1,10 +1,16 @@
-project('piengine', 'cpp')
+project('piengine', 'cpp',
+    default_options: [
+        'cpp_std=c++23'
+    ]
+)
 
 engine_source = [
 	'src/main.cpp',
 	'src/file_ops.cpp',
 	'src/mesh.cpp',
-	'src/shader.cpp'
+	'src/shader.cpp',
+
+	'src/loaders/dds.cpp'
 ]
 
 engine_private_includes = [
