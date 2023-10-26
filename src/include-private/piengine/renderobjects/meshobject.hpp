@@ -6,7 +6,7 @@
 
 struct MeshObject : RenderObject {
 	MeshObject() = default;
-	MeshObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Shader> shader);
+	MeshObject(std::shared_ptr<Mesh> mesh);
 
 	void draw() override;
 
@@ -14,11 +14,10 @@ struct MeshObject : RenderObject {
 		_mesh = mesh;
 	}
 
-	void setShader(std::shared_ptr<Shader> shader) {
-		_shader = shader;
+	constexpr std::shared_ptr<Mesh>& getMesh() {
+		return _mesh;
 	}
 
 private:
 	std::shared_ptr<Mesh> _mesh;
-	std::shared_ptr<Shader> _shader;
 };

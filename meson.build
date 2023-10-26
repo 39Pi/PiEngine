@@ -9,6 +9,7 @@ engine_source = [
 	'src/file_ops.cpp',
 	'src/mesh.cpp',
 	'src/shader.cpp',
+	'src/texture.cpp',
 
 	'src/renderobjects/renderobject.cpp',
 	'src/renderobjects/meshobject.cpp',

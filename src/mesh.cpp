@@ -1,115 +1,65 @@
 #include <iostream>
+#include <piengine/managers/shader.hpp>
 #include <piengine/shader.hpp>
 #include <piengine/mesh.hpp>
+#include <piengine/texture.hpp>
 
 namespace {
-
-constexpr bool debugMeshes = true;
-
+    constexpr bool debugMeshes = true;
 }
-static const GLfloat g_vertex_buffer_data[] = {
-    -1.0f,-1.0f,-1.0f, // triangle 1 : begin
-    -1.0f,-1.0f, 1.0f,
-    -1.0f, 1.0f, 1.0f, // triangle 1 : end
-    1.0f, 1.0f,-1.0f, // triangle 2 : begin
-    -1.0f,-1.0f,-1.0f,
-    -1.0f, 1.0f,-1.0f, // triangle 2 : end
-    1.0f,-1.0f, 1.0f,
-    -1.0f,-1.0f,-1.0f,
-    1.0f,-1.0f,-1.0f,
-    1.0f, 1.0f,-1.0f,
-    1.0f,-1.0f,-1.0f,
-    -1.0f,-1.0f,-1.0f,
-    -1.0f,-1.0f,-1.0f,
-    -1.0f, 1.0f, 1.0f,
-    -1.0f, 1.0f,-1.0f,
-    1.0f,-1.0f, 1.0f,
-    -1.0f,-1.0f, 1.0f,
-    -1.0f,-1.0f,-1.0f,
-    -1.0f, 1.0f, 1.0f,
-    -1.0f,-1.0f, 1.0f,
-    1.0f,-1.0f, 1.0f,
-    1.0f, 1.0f, 1.0f,
-    1.0f,-1.0f,-1.0f,
-    1.0f, 1.0f,-1.0f,
-    1.0f,-1.0f,-1.0f,
-    1.0f, 1.0f, 1.0f,
-    1.0f,-1.0f, 1.0f,
-    1.0f, 1.0f, 1.0f,
-    1.0f, 1.0f,-1.0f,
-    -1.0f, 1.0f,-1.0f,
-    1.0f, 1.0f, 1.0f,
-    -1.0f, 1.0f,-1.0f,
-    -1.0f, 1.0f, 1.0f,
-    1.0f, 1.0f, 1.0f,
-    -1.0f, 1.0f, 1.0f,
-    1.0f,-1.0f, 1.0f
-};
-
-static const GLfloat g_color_buffer_data[] = {
-    0.583f,  0.771f,  0.014f,
-    0.609f,  0.115f,  0.436f,
-    0.327f,  0.483f,  0.844f,
-    0.822f,  0.569f,  0.201f,
-    0.435f,  0.602f,  0.223f,
-    0.310f,  0.747f,  0.185f,
-    0.597f,  0.770f,  0.761f,
-    0.559f,  0.436f,  0.730f,
-    0.359f,  0.583f,  0.152f,
-    0.483f,  0.596f,  0.789f,
-    0.559f,  0.861f,  0.639f,
-    0.195f,  0.548f,  0.859f,
-    0.014f,  0.184f,  0.576f,
-    0.771f,  0.328f,  0.970f,
-    0.406f,  0.615f,  0.116f,
-    0.676f,  0.977f,  0.133f,
-    0.971f,  0.572f,  0.833f,
-    0.140f,  0.616f,  0.489f,
-    0.997f,  0.513f,  0.064f,
-    0.945f,  0.719f,  0.592f,
-    0.543f,  0.021f,  0.978f,
-    0.279f,  0.317f,  0.505f,
-    0.167f,  0.620f,  0.077f,
-    0.347f,  0.857f,  0.137f,
-    0.055f,  0.953f,  0.042f,
-    0.714f,  0.505f,  0.345f,
-    0.783f,  0.290f,  0.734f,
-    0.722f,  0.645f,  0.174f,
-    0.302f,  0.455f,  0.848f,
-    0.225f,  0.587f,  0.040f,
-    0.517f,  0.713f,  0.338f,
-    0.053f,  0.959f,  0.120f,
-    0.393f,  0.621f,  0.362f,
-    0.673f,  0.211f,  0.457f,
-    0.820f,  0.883f,  0.371f,
-    0.982f,  0.099f,  0.879f
-};
 
 Mesh::Mesh() {
-	glGenVertexArrays(1, &VertexArrayID);
-	glBindVertexArray(VertexArrayID);
-
-	glGenBuffers(1, &vertexbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
-
-	glGenBuffers(1, &colourbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, colourbuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_color_buffer_data), g_color_buffer_data, GL_STATIC_DRAW);
-
-	// glGenBuffers(1, &elementbuffer);
-	// glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
-	// glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(triangles), triangles, GL_STATIC_DRAW);
-
-	vertex_size = sizeof(g_vertex_buffer_data) / sizeof(GLfloat) / 3;
-
-	if(debugMeshes)
-		std::cerr << "PiEngine: constructed mesh object, vertex_size=" << vertex_size << std::endl;
+    _generateBuffers();
 }
 
-void Mesh::draw(glm::mat4 mvp, std::shared_ptr<Shader> shader) const {
+Mesh::Mesh(Type type) {
+    _generateBuffers();
+    updateShader(type);
+}
+
+Mesh::Mesh(Type type, std::vector<GLfloat> vertex, std::vector<GLfloat> uv) {
+    _generateBuffers();
+    updateShader(type);
+    updateMesh(vertex, uv);
+}
+
+Mesh::Mesh(Type type, std::vector<GLfloat> vertex, std::vector<GLfloat> uv, std::shared_ptr<Texture> texture) {
+    _generateBuffers();
+    updateShader(type);
+    updateMesh(vertex, uv);
+    updateTexture(texture);
+}
+
+Mesh::~Mesh() {
+    glDeleteBuffers(1, &vertexbuffer);
+    glDeleteBuffers(1, &colourbuffer);
+    // glDeleteBuffers(1, &elementbuffer);
+
+    if(debugMeshes) {
+        std::cerr << "PiEngine: deleted mesh object" << std::endl;
+    }
+}
+
+void Mesh::draw(glm::mat4 mvp) const {
+    std::shared_ptr<Shader> shader;
+    switch(_type) {
+    case Mesh::Type::Coloured: {
+        shader = ShaderManager::the().colorShader;
+        break;
+    }
+    case Mesh::Type::Textured: {
+        shader = ShaderManager::the().textureShader;
+        break;
+    }
+    }
     shader->enable();
+
 	glUniformMatrix4fv(shader->getMvpId(), 1, GL_FALSE, &mvp[0][0]);
+
+    if(_type == Mesh::Type::Textured) {
+        assert(_texture);
+        _texture->bind(GL_TEXTURE0);
+    }
 
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
@@ -126,7 +76,7 @@ void Mesh::draw(glm::mat4 mvp, std::shared_ptr<Shader> shader) const {
 	glBindBuffer(GL_ARRAY_BUFFER, colourbuffer);
 	glVertexAttribPointer(
 		1, 					// attr 0
-		3, 					// vertex count
+		_type == Mesh::Type::Textured ? 2 : 3, 					// vertex count
 		GL_FLOAT, 			// data type
 		GL_FALSE, 			// not normalized
 		0, 					// stride
@@ -137,4 +87,36 @@ void Mesh::draw(glm::mat4 mvp, std::shared_ptr<Shader> shader) const {
 	glDrawArrays(GL_TRIANGLES, 0, vertex_size);
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
+}
+
+void Mesh::updateMesh(std::vector<GLfloat> vertex, std::vector<GLfloat> uv) {
+    _vertex = std::move(vertex);
+    _uv = std::move(uv);
+
+    _bufferData();
+}
+
+void Mesh::_generateBuffers() {
+    glGenVertexArrays(1, &VertexArrayID);
+    glBindVertexArray(VertexArrayID);
+
+    glGenBuffers(1, &vertexbuffer);
+    glGenBuffers(1, &colourbuffer);
+    // glGenBuffers(1, &elementbuffer);
+}
+
+void Mesh::_bufferData() {
+    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * _vertex.size(), _vertex.data(), GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ARRAY_BUFFER, colourbuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * _uv.size(), _uv.data(), GL_STATIC_DRAW);
+    
+    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+    // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(triangles), triangles, GL_STATIC_DRAW);
+
+    vertex_size = _vertex.size() / 3;
+
+    if(debugMeshes)
+        std::cerr << "PiEngine: buffered mesh object, vertex_size=" << vertex_size << std::endl;
 }

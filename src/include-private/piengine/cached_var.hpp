@@ -17,6 +17,7 @@ struct CachedVar {
 
 	void set(const T& val) {
 		_var = val;
+		_set = true;
 	}
 
 	T& get() {
