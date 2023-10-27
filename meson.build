@@ -10,12 +10,15 @@ engine_source = [
 	'src/mesh.cpp',
 	'src/shader.cpp',
 	'src/texture.cpp',
+	'src/iostream_out_ops.cpp',
 
 	'src/renderobjects/renderobject.cpp',
 	'src/renderobjects/meshobject.cpp',
 
 	'src/managers/render.cpp',
 	'src/managers/camera.cpp',
+	'src/managers/input.cpp',
+	'src/managers/window.cpp',
 
 	'src/loaders/dds.cpp'
 ]

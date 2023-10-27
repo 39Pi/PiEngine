@@ -6,7 +6,7 @@
 #include <piengine/renderobjects/renderobject.hpp>
 
 struct RenderManager {
-	static RenderManager& the() {
+	static inline RenderManager& the() {
 		static RenderManager instance;
 		return instance;
 	}

@@ -1,4 +1,3 @@
-#include "piengine/texture.hpp"
 #include <iostream>
 #include <memory>
 #include <vector>
@@ -6,18 +5,19 @@
 #include <piengine/file_ops.hpp>
 #include <piengine/shader.hpp>
 #include <piengine/mesh.hpp>
+#include <piengine/texture.hpp>
+#include <piengine/iostream_out_ops.hpp>
 #include <piengine/managers/shader.hpp>
 #include <piengine/managers/camera.hpp>
 #include <piengine/managers/render.hpp>
+#include <piengine/managers/window.hpp>
+#include <piengine/managers/input.hpp>
 #include <piengine/renderobjects/meshobject.hpp>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
-int width = 1024;
-int height = 768;
 
 std::vector<GLfloat> g_vertex_buffer_data = {
     -1.0f,-1.0f,-1.0f, // triangle 1 : begin
@@ -136,6 +136,12 @@ std::vector<GLfloat> g_uv_buffer_data = {
     0.667979f, 1.0f-0.335851f
 };
 
+int width = 1920;
+int height = 1080;
+
+constexpr float mouseSpeed = 80.0f;
+constexpr float movSpeed = 10.0f;
+
 int main(int argc, char** argv) {
     std::cout << "PiEngine!" << std::endl;
 
@@ -144,38 +150,16 @@ int main(int argc, char** argv) {
         std::cout << "PiEngine: set global asset path to " << file_ops::getGlobalAssetPath() << std::endl;
     }
 
-    glewExperimental = true; // Needed for core profile
-    if(!glfwInit()) {
-        std::cerr << "failed to init GLFW!" << std::endl;
+    if(!WindowManager::the().createWindow("PiEngine", width, height)) {
         return -1;
     }
 
-    glfwWindowHint(GLFW_SAMPLES, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    GLFWwindow* window;
-    window = glfwCreateWindow( width, height, "PiEngine", NULL, NULL);
-    if( window == NULL ){
-        std::cerr << "failed to open GLFW window" << std::endl;
-        glfwTerminate();
-        return -1;
-    }
-    glfwMakeContextCurrent(window); // Initialize GLEW
-    glewExperimental=true; // Needed in core profile
-    if (glewInit() != GLEW_OK) {
-        std::cerr << "failed to initialize GLEW" << std::endl;
-        return -1;
-    }
-
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
+    InputManager::the().init();
 
     // Setup camera
     CameraManager::the().setWindowSize(width, height);
-    CameraManager::the().setPos(glm::vec3(4, 3, 3));
+    CameraManager::the().setPos(glm::vec3(4.0f, 3.0f, 3.0f));
+    CameraManager::the().setRot(glm::vec3(0.0f, -0.5f, 4.0f));
 
     // Load shaders
     ShaderManager::the().colorShader = std::make_shared<Shader>(
@@ -195,21 +179,51 @@ int main(int argc, char** argv) {
     auto mesh = std::make_shared<Mesh>(Mesh::Type::Textured, g_vertex_buffer_data, g_uv_buffer_data, texture);
     RenderManager::the().addObject(std::make_shared<MeshObject>(mesh));
 
-    // Ensure we can capture the escape key being pressed below
-    glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
-
     do {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        InputManager::the().beginFrame();
+
+        // std::cerr << "PiEngine: mouse pos = " << InputManager::the().normalisedMouseDeltaPos() << std::endl;
+
+        double deltaTime = InputManager::the().deltaTime();
+
+        glm::vec3 cameraRot = CameraManager::the().getRot();
+        cameraRot.z += mouseSpeed * deltaTime * InputManager::the().normalisedMouseDeltaPos().x;
+        cameraRot.y += mouseSpeed * deltaTime * InputManager::the().normalisedMouseDeltaPos().y;
+
+        if(cameraRot != CameraManager::the().getRot()) {
+            CameraManager::the().setRot(cameraRot);
+            std::cerr << "cameraRot = " << cameraRot << std::endl;
+        }
+
+        glm::vec3 cameraPos = CameraManager::the().getPos();
+        if(InputManager::the().keyPressed(GLFW_KEY_UP)) {
+            cameraPos += CameraManager::the().getDirectionVector() * (float)deltaTime * movSpeed;
+        }
+        if(InputManager::the().keyPressed(GLFW_KEY_DOWN)) {
+            cameraPos -= CameraManager::the().getDirectionVector() * (float)deltaTime * movSpeed;
+        }
+
+        if(InputManager::the().keyPressed(GLFW_KEY_RIGHT)) {
+            cameraPos += CameraManager::the().getRightVector() * (float)deltaTime * movSpeed;
+        }
+        if(InputManager::the().keyPressed(GLFW_KEY_LEFT)) {
+            cameraPos -= CameraManager::the().getRightVector() * (float)deltaTime * movSpeed;
+        }
+
+        if(cameraPos != CameraManager::the().getPos()) {
+            CameraManager::the().setPos(cameraPos);
+        }
 
         RenderManager::the().draw();
 
         // Swap buffers
-        glfwSwapBuffers(window);
+        InputManager::the().endFrame();
+        glfwSwapBuffers(WindowManager::the().getWindow());
         glfwPollEvents();
-
     } // Check if the ESC key was pressed or the window was closed
-    while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
-           glfwWindowShouldClose(window) == 0 );
+    while( glfwGetKey(WindowManager::the().getWindow(), GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
+           glfwWindowShouldClose(WindowManager::the().getWindow()) == 0 );
 
     return 0;
 }

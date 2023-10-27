@@ -4,7 +4,7 @@
 #include <piengine/shader.hpp>
 
 struct ShaderManager {
-	static ShaderManager& the() {
+	static inline ShaderManager& the() {
 		static ShaderManager instance;
 		return instance;
 	}
