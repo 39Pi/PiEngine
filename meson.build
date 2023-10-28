@@ -34,10 +34,11 @@ glew_dep = dependency('glew')
 glfw_dep = dependency('glfw3')
 glm_dep = dependency('glm')
 
-# Angelscript does not have a pkgconfig or CMake file, so we need to do this instead
-angelscript_dep = meson.get_compiler('cpp').find_library('angelscript')
+lua_dep = dependency('lua')
+sol2_dep = dependency('sol2')
 
 executable('piengine', engine_source,
 	include_directories : [ engine_private_includes ],
-	dependencies : [ sdl2_dep, glew_dep, glfw_dep, glm_dep, angelscript_dep ]
+	dependencies : [ sdl2_dep, glew_dep, glfw_dep, glm_dep, lua_dep, sol2_dep ],
+	cpp_args : ['-DSOL_ALL_SAFETIES_ON=1']
 )

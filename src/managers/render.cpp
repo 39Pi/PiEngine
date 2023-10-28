@@ -15,6 +15,12 @@ void RenderManager::addObject(std::shared_ptr<RenderObject> object) {
 	objects.push_back(std::move(object));
 }
 
+void RenderManager::fireScripts() {
+	for(auto object : objects) {
+		object->fireScript(object);
+	}
+}
+
 void RenderManager::draw() {
 	for(auto object : objects) {
 		object->draw();

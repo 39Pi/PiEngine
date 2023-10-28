@@ -10,7 +10,8 @@ uint64_t next_id = 1;
 
 RenderObject::RenderObject()
 : _modelMatrix{std::function<glm::mat4()>(std::bind(&RenderObject::_computeModelMatrix, this))}, 
-  _rotMatrix{std::function<glm::mat4()>(std::bind(&RenderObject::_computeRotMatrix, this))}, _id{next_id++} {
+  _rotMatrix{std::function<glm::mat4()>(std::bind(&RenderObject::_computeRotMatrix, this))},
+  _script{nullptr}, _id{next_id++} {
 }
 
 glm::mat4 RenderObject::_computeModelMatrix() {
@@ -18,5 +19,11 @@ glm::mat4 RenderObject::_computeModelMatrix() {
 }
 
 glm::mat4 RenderObject::_computeRotMatrix() {
-	return glm::toMat4(_rot);
+	return glm::toMat4(glm::quat{_rot});
+}
+
+void RenderObject::fireScript(std::shared_ptr<RenderObject> self) {
+	if(_script) {
+		_script->fire(self);
+	}
 }

@@ -13,6 +13,8 @@ struct RenderManager {
 
 	void addObject(std::shared_ptr<RenderObject> object);
 
+	void fireScripts();
+
 	void draw();
 
 	std::shared_ptr<RenderObject> objectById(uint64_t id);

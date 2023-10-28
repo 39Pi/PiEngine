@@ -18,7 +18,7 @@ void MeshObject::draw() {
 	assert(_mesh);
 
 	// Calculate MVP Matrix, using the current global view and projection matrix
-	glm::mat4 mvp = CameraManager::the().getProjMatrix() * CameraManager::the().getViewMatrix() * getModelMatrix();
+	glm::mat4 mvp = CameraManager::the().getProjMatrix() * CameraManager::the().getViewMatrix() * getModelMatrix() * getRotMatrix();
 
 	_mesh->draw(mvp);
 }

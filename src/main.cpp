@@ -177,7 +177,13 @@ int main(int argc, char** argv) {
 
     // Add meshes
     auto mesh = std::make_shared<Mesh>(Mesh::Type::Textured, g_vertex_buffer_data, g_uv_buffer_data, texture);
-    RenderManager::the().addObject(std::make_shared<MeshObject>(mesh));
+    auto script = std::make_shared<Script>(std::filesystem::path("scripts/rotate.lua"));
+    
+    auto object = std::make_shared<MeshObject>(mesh);
+    object->setRot(glm::vec3{0, 0, 0});
+    object->attachScript(script, object);
+
+    RenderManager::the().addObject(object);
 
     do {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -193,7 +199,6 @@ int main(int argc, char** argv) {
 
         if(cameraRot != CameraManager::the().getRot()) {
             CameraManager::the().setRot(cameraRot);
-            std::cerr << "cameraRot = " << cameraRot << std::endl;
         }
 
         glm::vec3 cameraPos = CameraManager::the().getPos();
@@ -215,6 +220,7 @@ int main(int argc, char** argv) {
             CameraManager::the().setPos(cameraPos);
         }
 
+        RenderManager::the().fireScripts();
         RenderManager::the().draw();
 
         // Swap buffers
