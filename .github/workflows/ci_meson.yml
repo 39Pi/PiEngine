@@ -1,0 +1,18 @@
+name: ci_meson
+
+on: [push, pull_request]
+
+jobs:
+  linux:
+    runs-on: self-hosted
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-python@v1
+      with:
+        python-version: '3.x'
+    - run: pip install meson ninja
+    - run: meson setup builddir/
+      env:
+        CC: gcc
+    - run: meson build -C builddir/ -v
+
