@@ -11,6 +11,7 @@ jobs:
       with:
         python-version: '3.x'
     - run: pip install meson ninja
+    - run: sudo apt-get install libgl-dev libglew-dev libsdl2-dev libglfw3-dev libglm-dev 
     - run: meson setup builddir/
       env:
         CC: gcc
