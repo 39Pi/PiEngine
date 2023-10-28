@@ -34,7 +34,7 @@ glew_dep = dependency('glew')
 glfw_dep = dependency('glfw3')
 glm_dep = dependency('glm')
 
-lua_dep = dependency('lua')
+lua_dep = dependency('lua5.3')
 sol2_dep = dependency('sol2')
 
 executable('piengine', engine_source,
