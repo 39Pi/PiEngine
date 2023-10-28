@@ -5,24 +5,24 @@ project('piengine', 'cpp',
 )
 
 engine_source = [
-	'src/main.cpp',
 	'src/file_ops.cpp',
+	'src/iostream_out_ops.cpp',
+	'src/main.cpp',
 	'src/mesh.cpp',
+	'src/script.cpp',
 	'src/shader.cpp',
 	'src/texture.cpp',
-	'src/iostream_out_ops.cpp',
-	'src/script.cpp',
 
-	'src/renderobjects/renderobject.cpp',
-	'src/renderobjects/meshobject.cpp',
+	'src/loaders/dds.cpp',
 
-	'src/managers/render.cpp',
 	'src/managers/camera.cpp',
 	'src/managers/input.cpp',
-	'src/managers/window.cpp',
+	'src/managers/render.cpp',
 	'src/managers/script.cpp',
+	'src/managers/window.cpp',
 
-	'src/loaders/dds.cpp'
+	'src/renderobjects/meshobject.cpp',
+	'src/renderobjects/renderobject.cpp',
 ]
 
 engine_private_includes = [
