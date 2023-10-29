@@ -15,5 +15,5 @@ jobs:
     - run: meson setup builddir/
       env:
         CC: gcc
-    - run: meson build -C builddir/ -v
-
+    - run: meson compile -C builddir/ -v
+    
