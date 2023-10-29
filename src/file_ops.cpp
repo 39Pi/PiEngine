@@ -44,7 +44,8 @@ std::string loadFile(std::filesystem::path file, bool cache) {
 }
 
 FILE* loadFile(std::filesystem::path file, const char mode[]) {
-	return fopen((relativePrepend / file).u8string().c_str(), mode);
+	// TODO: what happens when there are unicode chars here?
+	return fopen((relativePrepend / file).string().c_str(), mode);
 }
 
 }
