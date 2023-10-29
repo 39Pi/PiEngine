@@ -23,7 +23,7 @@ struct RenderObject {
 		return _pos;
 	}
 
-	constexpr const glm::quat& getRot() {
+	constexpr const glm::vec3& getRot() {
 		return _rot;
 	}
 
