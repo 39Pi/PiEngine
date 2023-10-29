@@ -1,5 +1,7 @@
+#include <algorithm>
 #include <iostream>
 #include <fstream>
+#include <map>
 
 #include <string.h>
 #include <errno.h>
@@ -10,6 +12,8 @@ namespace file_ops {
 
 std::filesystem::path relativePrepend = "";
 
+std::map<std::filesystem::path, std::string> stringFileCache;
+
 void setGlobalAssetPath(std::filesystem::path path) {
 	relativePrepend = std::move(path);
 }
@@ -18,7 +22,11 @@ std::filesystem::path getGlobalAssetPath() {
 	return relativePrepend;
 }
 
-std::string loadFile(std::filesystem::path file) {
+std::string loadFile(std::filesystem::path file, bool cache) {
+	if(auto it = stringFileCache.find(file); it != stringFileCache.end() && cache) {
+		return it->second;
+	}
+
 	std::ifstream stream(relativePrepend / file, std::ios::in);
 	if(stream.fail()) {
 		std::cerr << "PiEngine: loadFile(" << file << ") failed: " << strerror(errno) << std::endl;
@@ -27,6 +35,11 @@ std::string loadFile(std::filesystem::path file) {
 	std::stringstream sstr;
 	sstr << stream.rdbuf();
 	stream.close();
+
+	if(cache) {
+		stringFileCache[file] = sstr.str();
+	}
+
 	return sstr.str();
 }
 
